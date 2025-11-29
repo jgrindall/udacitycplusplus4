@@ -3,6 +3,7 @@
 
 #include <wx/bitmap.h>
 #include <string>
+#include <memory>
 
 class GraphNode; // forward declaration
 class ChatLogic; // forward declaration
@@ -11,7 +12,7 @@ class ChatBot
 {
 private:
     // data handles (owned)
-    wxBitmap *_image; // avatar image
+    std::unique_ptr<wxBitmap> _image;  // avatar image
 
     // data handles (not owned)
     GraphNode *_currentNode;
@@ -27,11 +28,11 @@ public:
     ChatBot(std::string filename); // constructor WITH memory allocation
     ~ChatBot();
 
-    //// STUDENT CODE
-    ////
+    ChatBot::ChatBot(const ChatBot &source) // copy constructor
+    ChatBot& operator=(const ChatBot& other) // copy assignment operator
+    ChatBot(ChatBot&& other)    // move constructor
+    ChatBot& operator=(ChatBot&& other) // move assignment operator
 
-    ////
-    //// EOF STUDENT CODE
 
     // getters / setters
     void SetCurrentNode(GraphNode* node);

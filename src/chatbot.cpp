@@ -2,6 +2,7 @@
 #include <random>
 #include <algorithm>
 #include <ctime>
+#include <memory>
 
 #include "chatlogic.h"
 #include "graphnode.h"
@@ -30,6 +31,24 @@ ChatBot::ChatBot(std::string filename)
     _image = new wxBitmap(filename, wxBITMAP_TYPE_PNG);
 }
 
+ChatBot::ChatBot(const ChatBot &source) // copy constructor
+{
+    std::cout << "ChatBot Copy Constructor" << std::endl;
+}
+
+ChatBot& operator=(const ChatBot& other) { 
+    std::cout << "ChatBot Copy Assignment Operator" << std::endl;
+
+}
+
+ChatBot(ChatBot&& other) {
+    std::cout << "ChatBot Move Constructor" << std::endl;
+}
+
+ChatBot& operator=(ChatBot&& other) { 
+    std::cout << "ChatBot Move Assignment Operator" << std::endl;
+}
+
 ChatBot::~ChatBot()
 {
     std::cout << "ChatBot Destructor" << std::endl;
@@ -42,7 +61,9 @@ ChatBot::~ChatBot()
     }
 }
 
-//// STUDENT CODE
+
+
+//// STUDENT CODE rule of 5
 ////
 
 ////
