@@ -19,19 +19,16 @@ private:
     GraphNode *_rootNode;
     ChatLogic *_chatLogic;
 
-    // proprietary functions
-    int ComputeLevenshteinDistance(std::string s1, std::string s2);
-
 public:
     // constructors / destructors
     ChatBot();                     // constructor WITHOUT memory allocation
     ChatBot(std::string filename); // constructor WITH memory allocation
     ~ChatBot();
 
-    ChatBot::ChatBot(const ChatBot &source) // copy constructor
-    ChatBot& operator=(const ChatBot& other) // copy assignment operator
-    ChatBot(ChatBot&& other)    // move constructor
-    ChatBot& operator=(ChatBot&& other) // move assignment operator
+    ChatBot(const ChatBot &source); // copy constructor
+    ChatBot& operator=(const ChatBot& other); // copy assignment operator
+    ChatBot(ChatBot&& other);    // move constructor
+    ChatBot& operator=(ChatBot&& other); // move assignment operator
 
 
     // getters / setters
@@ -50,7 +47,7 @@ public:
     }
     
     wxBitmap* GetImageHandle() {
-        return _image;
+        return _image.get();
     }
 
     // communication
