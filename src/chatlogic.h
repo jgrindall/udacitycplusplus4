@@ -11,6 +11,9 @@ class ChatBot;
 class GraphEdge;
 class GraphNode;
 
+typedef std::vector<std::unique_ptr<GraphNode>> GraphNodes;
+typedef std::vector<GraphEdge*> GraphEdges;
+
 class ChatLogic
 {
 private:
@@ -18,8 +21,9 @@ private:
     ////
 
     // data handles (owned)
-    std::vector<GraphNode *> _nodes;
-    std::vector<GraphEdge *> _edges;
+    std::unique_ptr<GraphNodes> _nodes; // owned
+    std::unique_ptr<GraphEdges> _edges; // owned
+    std::unique_ptr<ChatBot> _chatBot; // owned
 
     ////
     //// EOF STUDENT CODE
@@ -27,16 +31,14 @@ private:
     // data handles (not owned)
     GraphNode *_currentNode;
     
-    std::unique_ptr<ChatBot> _chatBot;
-
     ChatBotPanelDialog *_panelDialog;
 
     // proprietary type definitions
-    typedef std::vector<std::pair<std::string, std::string>> tokenlist;
+    typedef std::vector<std::pair<std::string, std::string>> TokenList;
 
     // proprietary functions
     template <typename T>
-    void AddAllTokensToElement(std::string tokenID, tokenlist &tokens, T &element);
+    void AddAllTokensToElement(std::string tokenID, TokenList &tokens, T &element);
 
 public:
     // constructor / destructor

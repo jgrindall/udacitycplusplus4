@@ -37,23 +37,28 @@ ChatLogic::~ChatLogic()
     //delete _chatBot;
 
     // delete all nodes
-    for (auto it = std::begin(_nodes); it != std::end(_nodes); ++it)
+
+
+   /**
+    for (auto it = std::begin(*_nodes.get()); it != std::end(*_nodes.get()); ++it)
     {
         delete *it;
     }
 
+
     // delete all edges
-    for (auto it = std::begin(_edges); it != std::end(_edges); ++it)
+    for (auto it = std::begin(*_edges.get()); it != std::end(*_edges.get()); ++it)
     {
         delete *it;
     }
+   **/
 
     ////
     //// EOF STUDENT CODE
 }
 
 template <typename T>
-void ChatLogic::AddAllTokensToElement(std::string tokenID, tokenlist &tokens, T &element)
+void ChatLogic::AddAllTokensToElement(std::string tokenID, TokenList &tokens, T &element)
 {
     // find all occurences for current node
     auto token = tokens.begin();
@@ -85,7 +90,7 @@ void ChatLogic::LoadAnswerGraphFromFile(std::string filename)
         while (getline(file, lineStr))
         {
             // extract all tokens from current line
-            tokenlist tokens;
+            TokenList tokens;
             while (lineStr.size() > 0)
             {
                 // extract next token
@@ -128,16 +133,20 @@ void ChatLogic::LoadAnswerGraphFromFile(std::string filename)
                         ////
 
                         // check if node with this ID exists already
-                        auto newNode = std::find_if(_nodes.begin(), _nodes.end(), [&id](GraphNode *node) { return node->GetID() == id; });
+
+                        // newNode of type vector<unique_ptr<GraphNode>>::iterator
+                        auto newNodeIterator = std::find_if(_nodes->begin(), _nodes->end(), [&id](const std::unique_ptr<GraphNode> &node) {
+                            return node->GetID() == id;
+                        });
 
                         // create new element if ID does not yet exist
-                        if (newNode == _nodes.end())
+                        if (newNodeIterator == _nodes->end())
                         {
-                            _nodes.emplace_back(new GraphNode(id));
-                            newNode = _nodes.end() - 1; // get iterator to last element
+                            _nodes->emplace_back(std::make_unique<GraphNode>(id));
+                            newNodeIterator = _nodes->end() - 1; // get iterator to last element
 
                             // add all answers to current node
-                            AddAllTokensToElement("ANSWER", tokens, **newNode);
+                            AddAllTokensToElement("ANSWER", tokens, **newNodeIterator);
                         }
 
                         ////
@@ -157,21 +166,29 @@ void ChatLogic::LoadAnswerGraphFromFile(std::string filename)
                         if (parentToken != tokens.end() && childToken != tokens.end())
                         {
                             // get iterator on incoming and outgoing node via ID search
-                            auto parentNode = std::find_if(_nodes.begin(), _nodes.end(), [&parentToken](GraphNode *node) { return node->GetID() == std::stoi(parentToken->second); });
-                            auto childNode = std::find_if(_nodes.begin(), _nodes.end(), [&childToken](GraphNode *node) { return node->GetID() == std::stoi(childToken->second); });
+
+
+                            //parentNode and childNode are iterators to unique_ptr<GraphNode>
+
+                            auto parentNodeIt = std::find_if(_nodes->begin(), _nodes->end(), [&parentToken](std::unique_ptr<GraphNode> &node) {
+                                return node->GetID() == std::stoi(parentToken->second);
+                            });
+                            auto childNodeIt = std::find_if(_nodes->begin(), _nodes->end(), [&childToken](std::unique_ptr<GraphNode> &node) {
+                                return node->GetID() == std::stoi(childToken->second);
+                            });
 
                             // create new edge
                             GraphEdge *edge = new GraphEdge(id);
-                            edge->SetChildNode(*childNode);
-                            edge->SetParentNode(*parentNode);
-                            _edges.push_back(edge);
+                            edge->SetChildNode((*childNodeIt).get());
+                            edge->SetParentNode((*parentNodeIt).get());
+                            _edges->push_back(edge);
 
                             // find all keywords for current node
                             AddAllTokensToElement("KEYWORD", tokens, *edge);
 
                             // store reference in child node and parent node
-                            (*childNode)->AddEdgeToParentNode(edge);
-                            (*parentNode)->AddEdgeToChildNode(edge);
+                            (*childNodeIt)->AddEdgeToParentNode(edge);
+                            (*parentNodeIt)->AddEdgeToChildNode(edge);
                         }
 
                         ////
@@ -198,16 +215,19 @@ void ChatLogic::LoadAnswerGraphFromFile(std::string filename)
     ////
 
     // identify root node
-    GraphNode *rootNode = nullptr;
-    for (auto it = std::begin(_nodes); it != std::end(_nodes); ++it)
+
+
+    auto rootNodeIt = _nodes->end();
+
+    for (auto it = std::begin(*_nodes.get()); it != std::end(*_nodes.get()); ++it)
     {
         // search for nodes which have no incoming edges
         if ((*it)->GetNumberOfParents() == 0)
         {
 
-            if (rootNode == nullptr)
+            if (rootNodeIt == _nodes->end())
             {
-                rootNode = *it; // assign current node to root
+                rootNodeIt = it;
             }
             else
             {
@@ -217,10 +237,10 @@ void ChatLogic::LoadAnswerGraphFromFile(std::string filename)
     }
 
     // add chatbot to graph root node
-    _chatBot->SetRootNode(rootNode);
+    _chatBot->SetRootNode((*rootNodeIt).get());
 
     // get the Chatbot*
-    rootNode->MoveChatbotHere(_chatBot.get());
+    (*rootNodeIt)->MoveChatbotHere(_chatBot.get());
     
     ////
     //// EOF STUDENT CODE
