@@ -12,7 +12,7 @@ class GraphEdge;
 class GraphNode;
 
 typedef std::vector<std::unique_ptr<GraphNode>> GraphNodes;
-typedef std::vector<GraphEdge*> GraphEdges;
+typedef std::vector<GraphEdge*> GraphEdges; 
 
 class ChatLogic
 {
@@ -21,9 +21,11 @@ private:
     ////
 
     // data handles (owned)
-    std::unique_ptr<GraphNodes> _nodes; // owned
-    std::unique_ptr<GraphEdges> _edges; // owned
-    std::unique_ptr<ChatBot> _chatBot; // owned
+    GraphNodes _nodes; // owned
+    GraphEdges _edges; // owned
+    
+    std::unique_ptr<ChatBot> _chatBot;
+
 
     ////
     //// EOF STUDENT CODE

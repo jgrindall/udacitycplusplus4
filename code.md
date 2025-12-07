@@ -31,7 +31,7 @@
 
   GetChildEdgeAtIndex
 
-  MoveChatbotHere(ChatBot *chatbot);
+  MoveChatbotHere(std::unique_ptr<ChatBot> chatbot);
   MoveChatbotToNewNode(GraphNode *newNode);
 
   GetAnswers
