@@ -23,8 +23,6 @@ private:
     // data handles (owned)
     GraphNodes _nodes; // owned
     GraphEdges _edges; // owned
-    
-    std::unique_ptr<ChatBot> _chatBot;
 
 
     ////
@@ -56,6 +54,9 @@ public:
     void SendMessageToChatbot(std::string message);
     void SendMessageToUser(std::string message);
     wxBitmap *GetImageFromChatbot();
+
+    void SetCurrentNode(GraphNode* node) { _currentNode = node; }
+    ChatBot* GetChatBotHandle();
 };
 
 #endif /* CHATLOGIC_H_ */

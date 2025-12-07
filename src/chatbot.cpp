@@ -64,14 +64,12 @@ ChatBot& ChatBot::operator=(const ChatBot& other) {
 }
 
 ChatBot::ChatBot(ChatBot&& other) {
-    std::cout << "ChatBot Move Constructor (other._chatLogic = " << other._chatLogic << ")" << std::endl;
+    std::cout << "ChatBot Move Constructor" << std::endl;
 
       _image = std::move(other._image);
       _chatLogic = other._chatLogic;
       _rootNode = other._rootNode;
       _currentNode = other._currentNode;
-
-      std::cout << "ChatBot Move Constructor (this->_chatLogic = " << _chatLogic << ")" << std::endl;
 
       other._chatLogic = nullptr;
       other._rootNode = nullptr;
@@ -136,17 +134,17 @@ void ChatBot::ReceiveMessageFromUser(std::string message)
 
 void ChatBot::SetCurrentNode(GraphNode *node)
 {
-    std::cout << "SetCurrentNode: Starting" << std::endl;
     _currentNode = node;
 
-    std::vector<std::string> answers = _currentNode->GetAnswers();
-    std::cout << "SetCurrentNode: Got " << answers.size() << " answers" << std::endl;
+    // Update ChatLogic's current node FIRST before sending messages
+    if (_chatLogic != nullptr) {
+        _chatLogic->SetCurrentNode(node);
+    }
 
+    std::vector<std::string> answers = _currentNode->GetAnswers();
     std::mt19937 generator(int(std::time(0)));
     std::uniform_int_distribution<int> dis(0, answers.size() - 1);
     std::string answer = answers.at(dis(generator));
 
-    std::cout << "SetCurrentNode: About to send message" << std::endl;
     _chatLogic->SendMessageToUser(answer);
-    std::cout << "SetCurrentNode: Done" << std::endl;
 }

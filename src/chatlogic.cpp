@@ -17,10 +17,10 @@ ChatLogic::ChatLogic()
 {
     //// STUDENT CODE
     ////
-     _chatBot = std::make_unique<ChatBot>("../images/chatbot.png");
+     //_chatBot = std::make_unique<ChatBot>("../images/chatbot.png");
 
     // add pointer to chatlogic so that chatbot answers can be passed on to the GUI
-    _chatBot->SetChatLogicHandle(this);    _panelDialog = nullptr;
+    //_chatBot->SetChatLogicHandle(this);    _panelDialog = nullptr;
 
 }
 
@@ -239,10 +239,18 @@ void ChatLogic::LoadAnswerGraphFromFile(std::string filename)
         }
     }
 
-    _chatBot->SetRootNode((*rootNodeIt).get());
+    auto chatbot = ChatBot("../images/chatbot.png");
+
+    chatbot.SetChatLogicHandle(this);
+
+    GraphNode* rootNode = (*rootNodeIt).get();
+
+    chatbot.SetRootNode(rootNode);
 
     // get the Chatbot*
-    (*rootNodeIt)->MoveChatbotHere(_chatBot.get());
+    (*rootNodeIt)->MoveChatbotHere(std::move(chatbot));
+
+    _currentNode = rootNode;
         
 }
 
@@ -251,26 +259,35 @@ void ChatLogic::SetPanelDialogHandle(ChatBotPanelDialog *panelDialog)
     _panelDialog = panelDialog;
 }
 
+ChatBot* ChatLogic::GetChatBotHandle() {
+    if (_currentNode != nullptr) {
+        return _currentNode->GetChatBotHandle();
+    }
+    return nullptr;
+}
+
 
 void ChatLogic::SendMessageToChatbot(std::string message)
-{
-    _chatBot->ReceiveMessageFromUser(message);
-}
- void ChatLogic::SendMessageToUser(std::string message)
-  {
-      std::cout << "SendMessageToUser: Called with message: " << message << std::endl;
-      std::cout << "SendMessageToUser: _panelDialog = " << _panelDialog << std::endl;
+{   
 
-      if (_panelDialog != nullptr) {
-          std::cout << "SendMessageToUser: About to call PrintChatbotResponse" << std::endl;
-          _panelDialog->PrintChatbotResponse(message);
-          std::cout << "SendMessageToUser: Done" << std::endl;
-      } else {
-          std::cout << "SendMessageToUser: _panelDialog is null, skipping" << std::endl;
-      }
-  }
+    GetChatBotHandle()->ReceiveMessageFromUser(message);
+    
+}
+
+
+
+void ChatLogic::SendMessageToUser(std::string message)
+{
+    if (_panelDialog != nullptr) {
+        _panelDialog->PrintChatbotResponse(message);
+    }
+}
 
 wxBitmap *ChatLogic::GetImageFromChatbot()
 {
-    return _chatBot->GetImageHandle();
+    ChatBot* bot = GetChatBotHandle();
+    if (bot != nullptr) {
+        return bot->GetImageHandle();
+    }
+    return nullptr;
 }

@@ -31,21 +31,17 @@ void GraphNode::AddEdgeToChildNode(std::unique_ptr<GraphEdge> edge)
 }
 
 
-void GraphNode::MoveChatbotHere(ChatBot *chatbot)
+void GraphNode::MoveChatbotHere(ChatBot&& chatbot)
 {
-    std::cout << "MoveChatbotHere: Creating unique_ptr" << std::endl;
-     _chatBot = chatbot;
-    std::cout << "MoveChatbotHere: About to call SetCurrentNode" << std::endl;
+    _chatBot = std::make_unique<ChatBot>(std::move(chatbot));
     _chatBot->SetCurrentNode(this);
-    std::cout << "MoveChatbotHere: Done" << std::endl;
 }
 
 
 void GraphNode::MoveChatbotToNewNode(GraphNode *newNode)
 {
-    std::cout << "MoveChatbotToNewNode: Moving chatbot to new node" << std::endl;
-    newNode->MoveChatbotHere(_chatBot);
-    _chatBot = nullptr; // invalidate pointer to chatbot
+    newNode->MoveChatbotHere(std::move(*_chatBot));
+    _chatBot = nullptr;
 }
 
 ////
